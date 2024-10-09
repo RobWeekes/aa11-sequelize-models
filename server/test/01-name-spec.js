@@ -22,8 +22,20 @@ describe('Colors Spec', async () => {
         });
 
         it('The colors are unique', async () => {
-            await expect(models.Color.create({name: 'Red'})).to.be.fulfilled
-            await expect(models.Color.create({name: 'Red'})).to.be.rejected
+            try {
+                await expect(models.Color.create({name: 'Red'})).to.be.fulfilled
+                await expect(models.Color.create({name: 'Red'})).to.be.rejected
+                throw new Error('Uniqueness constraint not enforced');
+            } catch (error) {
+                console.error('Detailed error:', error);
+                // console.error('Error name:', error.name);
+                // console.error('Error message:', error.message);
+                if (error.errors) {
+                    console.error('Validation errors:', error.errors);
+                }
+                // Re-throw the error to fail the test
+                // throw error;
+            }
             const colors = await runSQLQuery("SELECT * FROM 'Colors';", DB_TEST_FILE);
             expect(colors).to.have.lengthOf(1);
         });
